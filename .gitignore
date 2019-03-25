@@ -117,3 +117,8 @@ Session.vim
 *~
 # Auto-generated tag files
 tags
+
+# Others
+data
+.idea
+*/.idea

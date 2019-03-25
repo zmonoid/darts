@@ -4,7 +4,9 @@ import torch
 import shutil
 import torchvision.transforms as transforms
 from torch.autograd import Variable
-
+from time import strftime, gmtime
+import yaml
+from attrdict import AttrDict
 
 class AvgrageMeter(object):
 
@@ -78,6 +80,46 @@ def _data_transforms_cifar10(args):
     ])
   return train_transform, valid_transform
 
+def _data_transforms_cifar100(args):
+  CIFAR_MEAN = [0.5071, 0.4867, 0.4408]
+  CIFAR_STD = [0.2675, 0.2565, 0.2761]
+
+  train_transform = transforms.Compose([
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+  ])
+  if args.cutout:
+    train_transform.transforms.append(Cutout(args.cutout_length))
+
+  valid_transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    ])
+  return train_transform, valid_transform
+
+def _data_transforms_mini(args):
+  CIFAR_MEAN = [0.485, 0.456, 0.406]
+  CIFAR_STD = [0.229, 0.224, 0.225]
+
+  train_transform = transforms.Compose([
+    transforms.RandomResizedCrop(64),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+  ])
+  if args.cutout:
+    train_transform.transforms.append(Cutout(args.cutout_length))
+
+  valid_transform = transforms.Compose([
+    transforms.Resize(72),
+    transforms.CenterCrop(64),
+    transforms.ToTensor(),
+    transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    ])
+  return train_transform, valid_transform
+
 
 def count_parameters_in_MB(model):
   return np.sum(np.prod(v.size()) for name, v in model.named_parameters() if "auxiliary" not in name)/1e6
@@ -119,3 +161,11 @@ def create_exp_dir(path, scripts_to_save=None):
       dst_file = os.path.join(path, 'scripts', os.path.basename(script))
       shutil.copyfile(script, dst_file)
 
+
+def read_yaml(fallback_file='./neptune.yaml'):
+  with open(fallback_file) as f:
+    config = yaml.load(f, Loader=yaml.SafeLoader)
+    return AttrDict(config)
+
+def timestr():
+  return strftime("%Y%m%d-%H%M%S", gmtime())

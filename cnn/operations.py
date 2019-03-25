@@ -103,3 +103,29 @@ class FactorizedReduce(nn.Module):
     out = self.bn(out)
     return out
 
+
+class InvertedResidual(nn.Module):
+    def __init__(self, inp, oup, kernel_size, stride, expand_ratio=3):
+        super(InvertedResidual, self).__init__()
+        assert stride in [1, 2]
+
+        hidden_dim = round(inp * expand_ratio)
+        self.identity = stride == 1 and inp == oup
+
+
+        self.conv = nn.Sequential(
+            # pw
+            nn.Conv2d(inp, hidden_dim, 1, 1, 0, bias=False),
+            nn.BatchNorm2d(hidden_dim),
+            nn.ReLU6(inplace=True),
+            # dw
+            nn.Conv2d(hidden_dim, hidden_dim, kernel_size, stride, kernel_size // 2, groups=hidden_dim, bias=False),
+            nn.BatchNorm2d(hidden_dim),
+            nn.ReLU6(inplace=True),
+            # pw-linear
+            nn.Conv2d(hidden_dim, oup, 1, 1, 0, bias=False),
+            nn.BatchNorm2d(oup),
+        )
+
+    def forward(self, x):
+        return self.conv(x)

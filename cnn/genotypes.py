@@ -10,7 +10,9 @@ PRIMITIVES = [
     'sep_conv_3x3',
     'sep_conv_5x5',
     'dil_conv_3x3',
-    'dil_conv_5x5'
+    'dil_conv_5x5',
+    # "mob_conv_3x3",
+    # "mob_conv_5x5"
 ]
 
 NASNet = Genotype(

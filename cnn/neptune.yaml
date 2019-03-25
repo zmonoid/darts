@@ -1,0 +1,55 @@
+
+
+project: zhoubinxyz/cancer
+
+name: histopathologic-cancer-detection
+tags: [tutorial]
+
+metric:
+  channel: 'IOUT'
+  goal: maximize
+
+exclude:
+- .git
+- .idea
+- .ipynb_checkpoints
+- data
+- ckpt
+
+parameters:
+  # Basic Setting
+  seed: 1234
+  data: "./data/"
+  init_channels: 16
+  binarize: 1
+  layers: 8
+  batch_size: 64
+
+  ## Training details
+  train_portion: 0.5
+  epochs: 50
+  learning_rate: 0.1
+  learning_rate_min: 0.001
+  momentum: 0.9
+  weight_decay: 0.0003
+
+  meta_lr: 0.1
+  meta_ratio: 0.5
+  arch_learning_rate: 0.0003
+  arch_weight_decay: 0.001
+
+  grad_clip: 5
+
+
+  ## Save and Load
+  test: 0
+  resume: 0
+  tta: 1
+  save: "./ckpt/model_best_25032019-154511.pth"
+
+
+  ## Others
+  workers: 4
+  classes: 2
+  gpus: '0,1,2,3,4'
+  cutout: 0
